@@ -20,6 +20,7 @@ namespace Polygons
         private bool drawing = false;
         private bool movingVertex = false;
         private Vertex from;
+        private Point currentPosition;
 
         List<Vertex> Vertexs = new List<Vertex>();
         List<(Vertex, Vertex)> lines = new List<(Vertex, Vertex)>();
@@ -98,7 +99,10 @@ namespace Polygons
             {
                 DrawLine(pair.Item1.Position.X, pair.Item1.Position.Y, pair.Item2.Position.X, pair.Item2.Position.Y, g);
             }
-
+            if (drawing == true)
+            {
+                DrawLine(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y, g); // TODO
+            }
 
         }
 
@@ -144,8 +148,6 @@ namespace Polygons
             {
                 Console.WriteLine("w clicked");
                 Console.WriteLine(Polygons.MousePosition.X + " , " + Polygons.MousePosition.Y);
-                //Polygons.MousePosition
-                
             }
         }
 
@@ -154,11 +156,12 @@ namespace Polygons
             if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVertex == true && from != null)
             {
                 from.Position = e.Location;
-   
-                Console.WriteLine(from);
                 Invalidate();
-                //pictureBox1.Left = e.X + pictureBox1.Left - MouseDownLocation.X;
-                //pictureBox1.Top = e.Y + pictureBox1.Top - MouseDownLocation.Y;
+            }
+            if (drawing == true)
+            {
+                currentPosition = e.Location;
+                Invalidate();
             }
         }
 
@@ -175,7 +178,6 @@ namespace Polygons
                 {
                     if (InArea(ver.Position, e.Location, CLICK_RADIUS))
                     {
-                        Console.WriteLine("vert right clicked!");
                         Vertexs.Remove(ver);
                         lines.RemoveAll(line => line.Item1 == ver || line.Item2 == ver);
                         Invalidate();
