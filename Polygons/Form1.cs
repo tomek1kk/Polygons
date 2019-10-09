@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Polygons
 {
-    public partial class Form1 : Form
+    public partial class Polygons : Form
     {
-        public Form1()
+        public Polygons()
         {
             InitializeComponent();
         }
@@ -77,39 +77,46 @@ namespace Polygons
 
             foreach (var pair in lines)
             {
-                MidpointLine(pair.Item1, pair.Item2, g);
+                //MidpointLine(pair.Item1, pair.Item2, g);
+                line(pair.Item1.X, pair.Item1.Y, pair.Item2.X, pair.Item2.Y, g);
             }
 
 
         }
 
-        private void MidpointLine(Point p1, Point p2, Graphics g)
+        public void line(int x, int y, int x2, int y2, Graphics g)
         {
-            int dx = p2.X - p1.X;
-            int dy = p2.Y - p1.Y;
-            int d = 2 * dy - dx; //initial value of d
-            int incrE = 2 * dy; //increment used for move to E
-            int incrNE = 2 * (dy - dx); //increment used for move to NE
-            int x = p1.X;
-            int y = p1.Y;
-
-            g.FillRectangle(Brushes.Black, x, y, 1, 1);
-
-            while (x < p2.X)
+            int w = x2 - x;
+            int h = y2 - y;
+            int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+            if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
+            if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
+            if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
+            int longest = Math.Abs(w);
+            int shortest = Math.Abs(h);
+            if (!(longest > shortest))
             {
-                if (d < 0) //choose E
-                {
-                    d += incrE;
-                    x++;
-                }
-                else //choose NE
-                {
-                    d += incrNE;
-                    x++;
-                    y++;
-                }
-
+                longest = Math.Abs(h);
+                shortest = Math.Abs(w);
+                if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
+                dx2 = 0;
+            }
+            int numerator = longest >> 1;
+            for (int i = 0; i <= longest; i++)
+            {
                 g.FillRectangle(Brushes.Black, x, y, 1, 1);
+                numerator += shortest;
+                if (!(numerator < longest))
+                {
+                    numerator -= longest;
+                    x += dx1;
+                    y += dy1;
+                }
+                else
+                {
+                    x += dx2;
+                    y += dy2;
+                }
             }
         }
 
