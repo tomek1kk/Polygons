@@ -16,7 +16,7 @@ namespace Polygons
         {
             InitializeComponent();
         }
-
+        const int CLICK_RADIUS = 20;
         private bool drawing = false;
         private bool movingVerticle = false;
         private Verticle from;
@@ -31,52 +31,59 @@ namespace Polygons
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            foreach (Verticle ver in verticles)
+            if (e.Button == MouseButtons.Left)
             {
-                if (InArea(e.Location, ver.Position, 20)) // existing verticle clicked
+                foreach (Verticle ver in verticles)
                 {
-                    if (Form.ModifierKeys == Keys.Control) // ctrl is clicked - drawing line
+                    if (InArea(e.Location, ver.Position, 20)) // existing verticle clicked
                     {
-                        drawing = true;
-                        from = ver;
-                    }
-                    else // moving selected verticle
-                    {
-                        movingVerticle = true;
-                        from = ver;
-                    }
+                        if (Form.ModifierKeys == Keys.Control) // ctrl is clicked - drawing line
+                        {
+                            drawing = true;
+                            from = ver;
+                        }
+                        else // moving selected verticle
+                        {
+                            movingVerticle = true;
+                            from = ver;
+                        }
 
+                    }
                 }
-            }
-            if (drawing == false && movingVerticle == false) // add new verticle
-            {
-                Console.WriteLine(e.Location);
-                verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
-                Invalidate();
+                if (drawing == false && movingVerticle == false) // add new verticle
+                {
+                    Console.WriteLine(e.Location);
+                    verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
+                    Invalidate();
+                }
             }
 
         }
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (drawing == true && from != null)
+            if (e.Button == MouseButtons.Left)
             {
-                foreach (var ver in verticles)
+
+                if (drawing == true && from != null)
                 {
-                    if (InArea(e.Location, ver.Position, 10))
+                    foreach (var ver in verticles)
                     {
-                        lines.Add((ver, from));
-                        Invalidate();
-                        drawing = false;
-                        return;
+                        if (InArea(e.Location, ver.Position, CLICK_RADIUS))
+                        {
+                            lines.Add((ver, from));
+                            Invalidate();
+                            drawing = false;
+                            return;
+                        }
                     }
+                    verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
+                    lines.Add((verticles.Find(v => v.Id == verticles.Count), from));
+                    Invalidate();
                 }
-                verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
-                lines.Add((verticles.Find(v => v.Id == verticles.Count), from));
-                Invalidate();
+                drawing = false;
+                movingVerticle = false;
             }
-            drawing = false;
-            movingVerticle = false;
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -152,6 +159,25 @@ namespace Polygons
                 Invalidate();
                 //pictureBox1.Left = e.X + pictureBox1.Left - MouseDownLocation.X;
                 //pictureBox1.Top = e.Y + pictureBox1.Top - MouseDownLocation.Y;
+            }
+        }
+
+        private void Polygons_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void Polygons_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                foreach (var ver in verticles)
+                {
+                    if (InArea(ver.Position, e.Location, CLICK_RADIUS))
+                    {
+                        Console.WriteLine("vert right clicked!");
+                    }
+                }
             }
         }
     }
