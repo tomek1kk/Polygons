@@ -176,6 +176,10 @@ namespace Polygons
                     if (InArea(ver.Position, e.Location, CLICK_RADIUS))
                     {
                         Console.WriteLine("vert right clicked!");
+                        verticles.Remove(ver);
+                        lines.RemoveAll(line => line.Item1 == ver || line.Item2 == ver);
+                        Invalidate();
+                        break;
                     }
                 }
             }
