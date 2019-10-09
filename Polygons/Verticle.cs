@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Polygons
 {
-    public class Verticle
+    public class Vertex
     {
         public int Id { get; set; }
         public Point Position { get; set; }

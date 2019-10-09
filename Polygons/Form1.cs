@@ -18,11 +18,11 @@ namespace Polygons
         }
         const int CLICK_RADIUS = 20;
         private bool drawing = false;
-        private bool movingVerticle = false;
-        private Verticle from;
+        private bool movingVertex = false;
+        private Vertex from;
 
-        List<Verticle> verticles = new List<Verticle>();
-        List<(Verticle, Verticle)> lines = new List<(Verticle, Verticle)>();
+        List<Vertex> Vertexs = new List<Vertex>();
+        List<(Vertex, Vertex)> lines = new List<(Vertex, Vertex)>();
 
         private bool InArea(Point p1, Point p2, int dist)
         {
@@ -33,27 +33,27 @@ namespace Polygons
         {
             if (e.Button == MouseButtons.Left)
             {
-                foreach (Verticle ver in verticles)
+                foreach (Vertex ver in Vertexs)
                 {
-                    if (InArea(e.Location, ver.Position, 20)) // existing verticle clicked
+                    if (InArea(e.Location, ver.Position, 20)) // existing Vertex clicked
                     {
                         if (Form.ModifierKeys == Keys.Control) // ctrl is clicked - drawing line
                         {
                             drawing = true;
                             from = ver;
                         }
-                        else // moving selected verticle
+                        else // moving selected Vertex
                         {
-                            movingVerticle = true;
+                            movingVertex = true;
                             from = ver;
                         }
 
                     }
                 }
-                if (drawing == false && movingVerticle == false) // add new verticle
+                if (drawing == false && movingVertex == false) // add new Vertex
                 {
                     Console.WriteLine(e.Location);
-                    verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
+                    Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1 });
                     Invalidate();
                 }
             }
@@ -67,7 +67,7 @@ namespace Polygons
 
                 if (drawing == true && from != null)
                 {
-                    foreach (var ver in verticles)
+                    foreach (var ver in Vertexs)
                     {
                         if (InArea(e.Location, ver.Position, CLICK_RADIUS))
                         {
@@ -77,19 +77,19 @@ namespace Polygons
                             return;
                         }
                     }
-                    verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
-                    lines.Add((verticles.Find(v => v.Id == verticles.Count), from));
+                    Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1 });
+                    lines.Add((Vertexs.Find(v => v.Id == Vertexs.Count), from));
                     Invalidate();
                 }
                 drawing = false;
-                movingVerticle = false;
+                movingVertex = false;
             }
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            foreach (Verticle ver in verticles)
+            foreach (Vertex ver in Vertexs)
             {
                 g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, 5, 5);
             }
@@ -151,7 +151,7 @@ namespace Polygons
 
         private void Polygons_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVerticle == true && from != null)
+            if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVertex == true && from != null)
             {
                 from.Position = e.Location;
    
@@ -171,12 +171,12 @@ namespace Polygons
         {
             if (e.Button == MouseButtons.Right)
             {
-                foreach (var ver in verticles)
+                foreach (var ver in Vertexs)
                 {
                     if (InArea(ver.Position, e.Location, CLICK_RADIUS))
                     {
                         Console.WriteLine("vert right clicked!");
-                        verticles.Remove(ver);
+                        Vertexs.Remove(ver);
                         lines.RemoveAll(line => line.Item1 == ver || line.Item2 == ver);
                         Invalidate();
                         break;
