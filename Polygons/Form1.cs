@@ -18,10 +18,11 @@ namespace Polygons
         }
 
         private bool drawing = false;
-        private Point from;
+        private bool movingVerticle = false;
+        private Verticle from;
 
-        List<Point> verticles = new List<Point>();
-        List<(Point, Point)> lines = new List<(Point, Point)>();
+        List<Verticle> verticles = new List<Verticle>();
+        List<(Verticle, Verticle)> lines = new List<(Verticle, Verticle)>();
 
         private bool InArea(Point p1, Point p2, int dist)
         {
@@ -30,17 +31,27 @@ namespace Polygons
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            foreach (Point ver in verticles)
+            foreach (Verticle ver in verticles)
             {
-                if (InArea(e.Location, ver, 20)) // existing verticle clicked
+                if (InArea(e.Location, ver.Position, 20)) // existing verticle clicked
                 {
-                    drawing = true;
-                    from = ver;
+                    if (Form.ModifierKeys == Keys.Control) // ctrl is clicked - drawing line
+                    {
+                        drawing = true;
+                        from = ver;
+                    }
+                    else // moving selected verticle
+                    {
+                        movingVerticle = true;
+                        from = ver;
+                    }
+
                 }
             }
-            if (drawing == false) // add new verticle
+            if (drawing == false && movingVerticle == false) // add new verticle
             {
-                verticles.Add(e.Location);
+                Console.WriteLine(e.Location);
+                verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
                 Invalidate();
             }
 
@@ -52,7 +63,7 @@ namespace Polygons
             {
                 foreach (var ver in verticles)
                 {
-                    if (InArea(e.Location, ver, 10))
+                    if (InArea(e.Location, ver.Position, 10))
                     {
                         lines.Add((ver, from));
                         Invalidate();
@@ -60,31 +71,31 @@ namespace Polygons
                         return;
                     }
                 }
-                verticles.Add(e.Location);
-                lines.Add((e.Location, from));
+                verticles.Add(new Verticle { Position = e.Location, Id = verticles.Count + 1 });
+                lines.Add((verticles.Find(v => v.Id == verticles.Count), from));
                 Invalidate();
             }
             drawing = false;
+            movingVerticle = false;
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            foreach (Point ver in verticles)
+            foreach (Verticle ver in verticles)
             {
-                g.FillRectangle(Brushes.Red, ver.X, ver.Y, 5, 5);
+                g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, 5, 5);
             }
 
             foreach (var pair in lines)
             {
-                //MidpointLine(pair.Item1, pair.Item2, g);
-                line(pair.Item1.X, pair.Item1.Y, pair.Item2.X, pair.Item2.Y, g);
+                DrawLine(pair.Item1.Position.X, pair.Item1.Position.Y, pair.Item2.Position.X, pair.Item2.Position.Y, g);
             }
 
 
         }
 
-        public void line(int x, int y, int x2, int y2, Graphics g)
+        private void DrawLine(int x, int y, int x2, int y2, Graphics g)
         {
             int w = x2 - x;
             int h = y2 - y;
@@ -120,6 +131,29 @@ namespace Polygons
             }
         }
 
+        private void Polygons_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 'w')
+            {
+                Console.WriteLine("w clicked");
+                Console.WriteLine(Polygons.MousePosition.X + " , " + Polygons.MousePosition.Y);
+                //Polygons.MousePosition
+                
+            }
+        }
+
+        private void Polygons_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVerticle == true && from != null)
+            {
+                from.Position = e.Location;
+   
+                Console.WriteLine(from);
+                Invalidate();
+                //pictureBox1.Left = e.X + pictureBox1.Left - MouseDownLocation.X;
+                //pictureBox1.Top = e.Y + pictureBox1.Top - MouseDownLocation.Y;
+            }
+        }
     }
 }
 
