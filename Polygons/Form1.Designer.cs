@@ -37,8 +37,10 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Name = "Polygons";
             this.Text = "Polygons";
+            this.Click += new System.EventHandler(this.Polygons_Click);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Polygons_KeyPress);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Polygons_MouseClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Polygons_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseUp);
