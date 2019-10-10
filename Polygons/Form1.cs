@@ -17,7 +17,7 @@ namespace Polygons
             InitializeComponent();
         }
 
-        const int CLICK_RADIUS = 20;
+        const int CLICK_RADIUS = 10;
         const int VERTEX_SIZE = 5;
 
         private bool drawing = false;
@@ -81,8 +81,13 @@ namespace Polygons
                     {
                         if (ver.Edges >= 2 || Form.ModifierKeys != Keys.Control) // moving vertex
                         {
-                            movingVertex = true;
-                            from = ver;
+                            if (lines.FindAll(l => l.P1 == ver || l.P2 == ver).All(li => li.Relation == Relation.None))
+                            {
+                                movingVertex = true;
+                                from = ver;
+                            }
+                            else
+                                return;
                         }
                         else if (Form.ModifierKeys == Keys.Control && ver.Edges < 2) // ctrl is clicked - drawing line
                         {
@@ -246,8 +251,14 @@ namespace Polygons
                     {
                         if (line.Marked == false)
                         {
-                            if (lines.FindAll(l => l.Marked == true).Count < 2)
+                            var markedLines = lines.FindAll(l => l.Marked == true).Count;
+                            if (markedLines < 2)
+                            {
                                 line.Marked = true;
+                                if (markedLines == 1)
+                                    button1.Enabled = true;
+                            }
+                                
                         }
                         else
                         {
@@ -261,6 +272,35 @@ namespace Polygons
                 }
                 
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e) // make marked lines equal length
+        {
+            var marked = lines.FindAll(line => line.Marked == true);
+            var length = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1].GetLineLength() : marked[0].GetLineLength(); // take shorter line
+            Line lineToChange = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[0] : marked[1];
+            Line lineToStay = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1] : marked[0];
+
+            if (lineToChange.P1 == lineToStay.P1 || lineToChange.P1 == lineToStay.P2) // moving P2
+            {
+                lineToChange.ReduceLine(length, false);
+            }
+            else // moving P1
+            {
+                lineToChange.ReduceLine(length, true);
+            }
+
+            marked[0].Marked = false;
+            marked[1].Marked = false;
+
+            marked[0].Relation = Relation.Equal;
+            marked[1].Relation = Relation.Equal;
+
+            marked[0].RecolorLine();
+            marked[1].RecolorLine();
+
+            Invalidate();
+
         }
     }
 }

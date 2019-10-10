@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
+
 namespace Polygons
 {
     public enum Relation { None, Equal, Parallel }
@@ -33,6 +34,29 @@ namespace Polygons
             }
             if (Marked == true)
                 Color = Brushes.Blue;
+
         }
+        public int GetLineLength()
+        {
+            return (int)Math.Sqrt((P1.Position.X - P2.Position.X) * (P1.Position.X - P2.Position.X) +
+                                  (P1.Position.Y - P2.Position.Y) * (P1.Position.Y - P2.Position.Y));
+        }
+
+        public void ReduceLine(int length, bool moveP1)
+        {
+            if (moveP1)
+            {
+                var y = P1.Position.Y - ((GetLineLength() - length) * (P1.Position.Y - P2.Position.Y) / GetLineLength());
+                var x = P1.Position.X - ((GetLineLength() - length) * (P1.Position.X - P2.Position.X) / GetLineLength());
+                P1.Position = new Point(x, y);
+            }
+            else
+            {
+                var y = P2.Position.Y - ((GetLineLength() - length) * (P2.Position.Y - P1.Position.Y) / GetLineLength());
+                var x = P2.Position.X - ((GetLineLength() - length) * (P2.Position.X - P1.Position.X) / GetLineLength());
+                P2.Position = new Point(x, y);
+            }
+        }
+
     }
 }
