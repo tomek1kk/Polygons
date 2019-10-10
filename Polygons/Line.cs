@@ -7,13 +7,13 @@ using System.Drawing;
 
 namespace Polygons
 {
-    public enum Relation { None, Equal, Parallel }
+    public enum Relation { None, Marked, Equal, Parallel }
 
     public class Line
     {
         public Vertex P1 { get; set; }
         public Vertex P2 { get; set; }
-        public Color Color { get; set; }
+        public Brush Color { get; set; }
         public Relation Relation { get; set; }
     }
 }

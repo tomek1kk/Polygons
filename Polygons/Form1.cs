@@ -17,6 +17,8 @@ namespace Polygons
             InitializeComponent();
         }
         const int CLICK_RADIUS = 20;
+        const int VERTEX_SIZE = 5;
+
         private bool drawing = false;
         private bool movingVertex = false;
         private Vertex from;
@@ -30,7 +32,7 @@ namespace Polygons
             return ((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y)) < dist * dist;
         }
 
-        private bool InAreaLine(Point p1, Line line)
+        private bool InLineArea(Point p1, Line line)
         {
 
             return true;
@@ -80,7 +82,7 @@ namespace Polygons
                         if (InArea(e.Location, ver.Position, CLICK_RADIUS) && ver.Edges < 2)
                         {
                             ver.Edges++;
-                            lines.Add(new Line { P1 = ver, P2 = from, Color = Color.Black, Relation = Relation.None });
+                            lines.Add(new Line { P1 = ver, P2 = from, Color = Brushes.Black, Relation = Relation.None });
                             Invalidate();
                             drawing = false;
                             return;
@@ -88,7 +90,7 @@ namespace Polygons
                     }
                     Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1, Edges = 1 });
                     lines.Add( new Line { P1 = Vertexs.Find(v => v.Id == Vertexs.Count), P2 = from,
-                                            Color = Color.Black, Relation = Relation.None });
+                                            Color = Brushes.Black, Relation = Relation.None });
                     Invalidate();
                 }
                 drawing = false;
@@ -101,21 +103,21 @@ namespace Polygons
             Graphics g = e.Graphics;
             foreach (Vertex ver in Vertexs)
             {
-                g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, 5, 5);
+                g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, VERTEX_SIZE, VERTEX_SIZE);
             }
 
             foreach (var line in lines)
             {
-                DrawLine(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y, g);
+                DrawLine(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y, line.Color, g);
             }
             if (drawing == true)
             {
-                DrawLine(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y, g); // TODO
+                DrawLine(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y, Brushes.Black, g); // TODO
             }
 
         }
 
-        private void DrawLine(int x, int y, int x2, int y2, Graphics g)
+        private void DrawLine(int x, int y, int x2, int y2, Brush color, Graphics g)
         {
             int w = x2 - x;
             int h = y2 - y;
@@ -135,7 +137,7 @@ namespace Polygons
             int numerator = longest >> 1;
             for (int i = 0; i <= longest; i++)
             {
-                g.FillRectangle(Brushes.Black, x, y, 1, 1);
+                g.FillRectangle(color, x, y, 1, 1);
                 numerator += shortest;
                 if (!(numerator < longest))
                 {
