@@ -189,7 +189,20 @@ namespace Polygons
                     if (InArea(ver.Position, e.Location, CLICK_RADIUS))
                     {
                         Vertexs.Remove(ver);
-                        lines.RemoveAll(line => line.P1 == ver || line.P2 == ver);
+                        lines.RemoveAll(line =>
+                            {
+                                if (line.P1 == ver)
+                                {
+                                    line.P2.Edges--;
+                                    return true;
+                                }
+                                else if (line.P2 == ver)
+                                {
+                                    line.P1.Edges--;
+                                    return true;
+                                }
+                                return false;
+                            });
                         Invalidate();
                         return;
                     }
