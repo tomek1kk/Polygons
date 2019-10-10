@@ -53,7 +53,6 @@ namespace Polygons
             int numerator = longest >> 1;
             for (int i = 0; i <= longest; i++)
             {
-                //g.FillRectangle(color, x, y, 1, 1);
                 if (InArea(new Point(x, y), p, 10))
                     return true;
                 numerator += shortest;
@@ -245,10 +244,19 @@ namespace Polygons
                 {
                     if (InLineArea(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y, e.Location))
                     {
-                        line.Marked = !line.Marked;
+                        if (line.Marked == false)
+                        {
+                            if (lines.FindAll(l => l.Marked == true).Count < 2)
+                                line.Marked = true;
+                        }
+                        else
+                        {
+                            line.Marked = false;
+                        }
                         line.RecolorLine();
                         Invalidate();
                         return;
+
                     }
                 }
                 
