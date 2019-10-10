@@ -23,11 +23,17 @@ namespace Polygons
         private Point currentPosition;
 
         List<Vertex> Vertexs = new List<Vertex>();
-        List<(Vertex, Vertex)> lines = new List<(Vertex, Vertex)>();
+        List<Line> lines = new List<Line>();
 
         private bool InArea(Point p1, Point p2, int dist)
         {
             return ((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y)) < dist * dist;
+        }
+
+        private bool InAreaLine(Point p1, Line line)
+        {
+
+            return true;
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
@@ -74,14 +80,15 @@ namespace Polygons
                         if (InArea(e.Location, ver.Position, CLICK_RADIUS) && ver.Edges < 2)
                         {
                             ver.Edges++;
-                            lines.Add((ver, from));
+                            lines.Add(new Line { P1 = ver, P2 = from, Color = Color.Black, Relation = Relation.None });
                             Invalidate();
                             drawing = false;
                             return;
                         }
                     }
                     Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1, Edges = 1 });
-                    lines.Add((Vertexs.Find(v => v.Id == Vertexs.Count), from));
+                    lines.Add( new Line { P1 = Vertexs.Find(v => v.Id == Vertexs.Count), P2 = from,
+                                            Color = Color.Black, Relation = Relation.None });
                     Invalidate();
                 }
                 drawing = false;
@@ -97,9 +104,9 @@ namespace Polygons
                 g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, 5, 5);
             }
 
-            foreach (var pair in lines)
+            foreach (var line in lines)
             {
-                DrawLine(pair.Item1.Position.X, pair.Item1.Position.Y, pair.Item2.Position.X, pair.Item2.Position.Y, g);
+                DrawLine(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y, g);
             }
             if (drawing == true)
             {
@@ -182,11 +189,12 @@ namespace Polygons
                     if (InArea(ver.Position, e.Location, CLICK_RADIUS))
                     {
                         Vertexs.Remove(ver);
-                        lines.RemoveAll(line => line.Item1 == ver || line.Item2 == ver);
+                        lines.RemoveAll(line => line.P1 == ver || line.P2 == ver);
                         Invalidate();
-                        break;
+                        return;
                     }
                 }
+                
             }
         }
     }
