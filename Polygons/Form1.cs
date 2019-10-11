@@ -24,9 +24,12 @@ namespace Polygons
         private bool movingVertex = false;
         private Vertex from;
         private Point currentPosition;
+        private Random rand = new Random();
+        private static int counter = 0;
 
         List<Vertex> Vertexs = new List<Vertex>();
         List<Line> lines = new List<Line>();
+        List<(Line, Line)> relations = new List<(Line, Line)>();
 
         private bool InArea(Point p1, Point p2, int dist)
         {
@@ -81,13 +84,13 @@ namespace Polygons
                     {
                         if (ver.Edges >= 2 || Form.ModifierKeys != Keys.Control) // moving vertex
                         {
-                            if (lines.FindAll(l => l.P1 == ver || l.P2 == ver).All(li => li.Relation == Relation.None))
-                            {
+                            //if (lines.FindAll(l => l.P1 == ver || l.P2 == ver).All(li => li.Relation == Relation.None))
+                            //{
                                 movingVertex = true;
                                 from = ver;
-                            }
-                            else
-                                return;
+                            //}
+                            //else
+                             //   return;
                         }
                         else if (Form.ModifierKeys == Keys.Control && ver.Edges < 2) // ctrl is clicked - drawing line
                         {
@@ -139,6 +142,7 @@ namespace Polygons
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
+
             foreach (Vertex ver in Vertexs)
             {
                 g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, VERTEX_SIZE, VERTEX_SIZE);
@@ -152,6 +156,7 @@ namespace Polygons
             {
                 DrawLine(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y, Brushes.Black, g); // TODO
             }
+            g.Dispose();
 
         }
 
@@ -203,6 +208,37 @@ namespace Polygons
             if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVertex == true && from != null)
             {
                 from.Position = e.Location;
+                if (counter++ % 10 == 0)
+                {
+                    foreach (var rel in relations)
+                    {
+                        if (rel.Item1.P1 == from || rel.Item1.P2 == from) // moving vertex with relation
+                        {
+                            if (rel.Item1.Relation == Relation.Parallel)
+                            {
+                                ParallelLines(rel.Item1, rel.Item2);
+                            }
+                            else // equal relation
+                            {
+
+                            }
+                            break;
+                        }
+                        else if (rel.Item2.P1 == from || rel.Item2.P2 == from)
+                        {
+                            if (rel.Item1.Relation == Relation.Parallel)
+                            {
+                                ParallelLines(rel.Item2, rel.Item1);
+                            }
+                            else // equal relation
+                            {
+
+                            }
+                            break;
+                        }
+
+                    }
+                }
                 Invalidate();
             }
             
@@ -266,6 +302,7 @@ namespace Polygons
                         else
                         {
                             line.Relation = Relation.None;
+                                relations.Remove(relations.FirstOrDefault(l => l.Item1 == line || l.Item2 == line));
                             line.Marked = false;
                         }
                         line.RecolorLine();
@@ -281,6 +318,9 @@ namespace Polygons
         private void button1_Click(object sender, EventArgs e) // make marked lines equal length
         {
             var marked = lines.FindAll(line => line.Marked == true);
+            if (marked.Count != 2)
+                return;
+            relations.Add((marked[0], marked[1]));
             var length = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1].GetLineLength() : marked[0].GetLineLength(); // take shorter line
             Line lineToChange = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[0] : marked[1];
             Line lineToStay = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1] : marked[0];
@@ -307,14 +347,26 @@ namespace Polygons
 
         }
 
+        private void ParallelLines(Line l1, Line l2)
+        {
+            double a = (double)(l1.P2.Position.Y - l1.P1.Position.Y) / (double)(l1.P2.Position.X - l1.P1.Position.X);
+            int length = l2.GetLineLength();
+            int xd = (int)(length / Math.Sqrt(a * a + 1)) + rand.Next() % 2;
+            int yd = (int)(a * xd) + rand.Next() % 2;
+            l2.P2.Position = new Point(l2.P1.Position.X + xd, l2.P1.Position.Y + yd);
+
+        }
+
         private void button2_Click(object sender, EventArgs e) // make marked edges parallel
         {
             var marked = lines.FindAll(l => l.Marked == true);
-            double a = (double)(marked[0].P2.Position.Y - marked[0].P1.Position.Y) / (double)(marked[0].P2.Position.X - marked[0].P1.Position.X);
-            int length = marked[1].GetLineLength();
-            int xd = (int)(length / Math.Sqrt(a * a + 1));
-            int yd = (int)(a * xd);
-            marked[1].P2.Position = new Point(marked[1].P1.Position.X + xd, marked[1].P1.Position.Y + yd);
+            if (marked.Count != 2)
+                return;
+            if (marked[0].P1 == marked[1].P1 || marked[0].P1 == marked[1].P2 || marked[0].P2 == marked[1].P1 || marked[0].P2 == marked[1].P2)
+                return;
+            relations.Add((marked[0], marked[1]));
+
+            ParallelLines(marked[0], marked[1]);
 
             marked[0].Marked = false;
             marked[1].Marked = false;
