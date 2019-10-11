@@ -249,19 +249,23 @@ namespace Polygons
                 {
                     if (InLineArea(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y, e.Location))
                     {
-                        if (line.Marked == false)
+                        if (line.Marked == false && line.Relation == Relation.None)
                         {
                             var markedLines = lines.FindAll(l => l.Marked == true).Count;
                             if (markedLines < 2)
                             {
                                 line.Marked = true;
                                 if (markedLines == 1)
+                                {
                                     button1.Enabled = true;
+                                    button2.Enabled = true;
+                                }
                             }
                                 
                         }
                         else
                         {
+                            line.Relation = Relation.None;
                             line.Marked = false;
                         }
                         line.RecolorLine();
@@ -301,6 +305,27 @@ namespace Polygons
 
             Invalidate();
 
+        }
+
+        private void button2_Click(object sender, EventArgs e) // make marked edges parallel
+        {
+            var marked = lines.FindAll(l => l.Marked == true);
+            double a = (double)(marked[0].P2.Position.Y - marked[0].P1.Position.Y) / (double)(marked[0].P2.Position.X - marked[0].P1.Position.X);
+            int length = marked[1].GetLineLength();
+            int xd = (int)(length / Math.Sqrt(a * a + 1));
+            int yd = (int)(a * xd);
+            marked[1].P2.Position = new Point(marked[1].P1.Position.X + xd, marked[1].P1.Position.Y + yd);
+
+            marked[0].Marked = false;
+            marked[1].Marked = false;
+
+            marked[0].Relation = Relation.Parallel;
+            marked[1].Relation = Relation.Parallel;
+
+            marked[0].RecolorLine();
+            marked[1].RecolorLine();
+
+            Invalidate();
         }
     }
 }
