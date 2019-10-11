@@ -16,12 +16,14 @@ namespace Polygons
         {
             InitializeComponent();
         }
-
+        const int CLICK_RADIUS = 20;
         private bool drawing = false;
-        private Point from;
+        private bool movingVertex = false;
+        private Vertex from;
+        private Point currentPosition;
 
-        List<Point> verticles = new List<Point>();
-        List<(Point, Point)> lines = new List<(Point, Point)>();
+        List<Vertex> Vertexs = new List<Vertex>();
+        List<(Vertex, Vertex)> lines = new List<(Vertex, Vertex)>();
 
         private bool InArea(Point p1, Point p2, int dist)
         {
@@ -30,61 +32,81 @@ namespace Polygons
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            foreach (Point ver in verticles)
+            if (e.Button == MouseButtons.Left)
             {
-                if (InArea(e.Location, ver, 20)) // existing verticle clicked
+                foreach (Vertex ver in Vertexs)
                 {
-                    drawing = true;
-                    from = ver;
+                    if (InArea(e.Location, ver.Position, 20)) // existing Vertex clicked
+                    {
+                        if (Form.ModifierKeys == Keys.Control) // ctrl is clicked - drawing line
+                        {
+                            drawing = true;
+                            from = ver;
+                        }
+                        else // moving selected Vertex
+                        {
+                            movingVertex = true;
+                            from = ver;
+                        }
+
+                    }
                 }
-            }
-            if (drawing == false) // add new verticle
-            {
-                verticles.Add(e.Location);
-                Invalidate();
+                if (drawing == false && movingVertex == false) // add new Vertex
+                {
+                    Console.WriteLine(e.Location);
+                    Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1 });
+                    Invalidate();
+                }
             }
 
         }
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (drawing == true && from != null)
+            if (e.Button == MouseButtons.Left)
             {
-                foreach (var ver in verticles)
+
+                if (drawing == true && from != null)
                 {
-                    if (InArea(e.Location, ver, 10))
+                    foreach (var ver in Vertexs)
                     {
-                        lines.Add((ver, from));
-                        Invalidate();
-                        drawing = false;
-                        return;
+                        if (InArea(e.Location, ver.Position, CLICK_RADIUS))
+                        {
+                            lines.Add((ver, from));
+                            Invalidate();
+                            drawing = false;
+                            return;
+                        }
                     }
+                    Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1 });
+                    lines.Add((Vertexs.Find(v => v.Id == Vertexs.Count), from));
+                    Invalidate();
                 }
-                verticles.Add(e.Location);
-                lines.Add((e.Location, from));
-                Invalidate();
+                drawing = false;
+                movingVertex = false;
             }
-            drawing = false;
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            foreach (Point ver in verticles)
+            foreach (Vertex ver in Vertexs)
             {
-                g.FillRectangle(Brushes.Red, ver.X, ver.Y, 5, 5);
+                g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, 5, 5);
             }
 
             foreach (var pair in lines)
             {
-                //MidpointLine(pair.Item1, pair.Item2, g);
-                line(pair.Item1.X, pair.Item1.Y, pair.Item2.X, pair.Item2.Y, g);
+                DrawLine(pair.Item1.Position.X, pair.Item1.Position.Y, pair.Item2.Position.X, pair.Item2.Position.Y, g);
             }
-
+            if (drawing == true)
+            {
+                DrawLine(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y, g); // TODO
+            }
 
         }
 
-        public void line(int x, int y, int x2, int y2, Graphics g)
+        private void DrawLine(int x, int y, int x2, int y2, Graphics g)
         {
             int w = x2 - x;
             int h = y2 - y;
@@ -120,6 +142,50 @@ namespace Polygons
             }
         }
 
+        private void Polygons_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 'w')
+            {
+                Console.WriteLine("w clicked");
+                Console.WriteLine(Polygons.MousePosition.X + " , " + Polygons.MousePosition.Y);
+            }
+        }
+
+        private void Polygons_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVertex == true && from != null)
+            {
+                from.Position = e.Location;
+                Invalidate();
+            }
+            if (drawing == true)
+            {
+                currentPosition = e.Location;
+                Invalidate();
+            }
+        }
+
+        private void Polygons_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void Polygons_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                foreach (var ver in Vertexs)
+                {
+                    if (InArea(ver.Position, e.Location, CLICK_RADIUS))
+                    {
+                        Vertexs.Remove(ver);
+                        lines.RemoveAll(line => line.Item1 == ver || line.Item2 == ver);
+                        Invalidate();
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
