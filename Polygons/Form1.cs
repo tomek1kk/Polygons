@@ -220,9 +220,9 @@ namespace Polygons
                             }
                             else // equal relation
                             {
-
+                                LinesEqual(rel.Item2, rel.Item1, rel.Item1.GetLineLength());
                             }
-                            break;
+                            //break;
                         }
                         else if (rel.Item2.P1 == from || rel.Item2.P2 == from)
                         {
@@ -232,9 +232,9 @@ namespace Polygons
                             }
                             else // equal relation
                             {
-
+                                LinesEqual(rel.Item1, rel.Item2, rel.Item2.GetLineLength());
                             }
-                            break;
+                            //break;
                         }
 
                     }
@@ -315,15 +315,9 @@ namespace Polygons
             }
         }
 
-        private void button1_Click(object sender, EventArgs e) // make marked lines equal length
+        private void LinesEqual(Line lineToChange, Line lineToStay, int length)
         {
-            var marked = lines.FindAll(line => line.Marked == true);
-            if (marked.Count != 2)
-                return;
-            relations.Add((marked[0], marked[1]));
-            var length = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1].GetLineLength() : marked[0].GetLineLength(); // take shorter line
-            Line lineToChange = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[0] : marked[1];
-            Line lineToStay = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1] : marked[0];
+
 
             if (lineToChange.P1 == lineToStay.P1 || lineToChange.P1 == lineToStay.P2) // moving P2
             {
@@ -333,6 +327,18 @@ namespace Polygons
             {
                 lineToChange.ReduceLine(length, true);
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e) // make marked lines equal length
+        {
+            var marked = lines.FindAll(line => line.Marked == true);
+            if (marked.Count != 2)
+                return;
+            relations.Add((marked[0], marked[1]));
+            var length = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1].GetLineLength() : marked[0].GetLineLength(); // take shorter line
+            Line lineToChange = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[0] : marked[1];
+            Line lineToStay = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1] : marked[0];
+            LinesEqual(lineToChange, lineToStay, length);
 
             marked[0].Marked = false;
             marked[1].Marked = false;
