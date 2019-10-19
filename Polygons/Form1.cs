@@ -126,16 +126,6 @@ namespace Polygons
         {
             Graphics g = e.Graphics;
 
-            foreach (Vertex ver in Vertexs)
-            {
-                g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, VERTEX_SIZE, VERTEX_SIZE);
-            }
-
-            foreach (var line in lines)
-            {
-                HelperFunctions.DrawLine(HelperFunctions.BresenhamAlgorithm(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y), line.Color, g);
-            }
-
             foreach (var polygon in polygons)
             {
                 List<Point> points = new List<Point>();
@@ -143,6 +133,18 @@ namespace Polygons
                     points.Add(vertex.Position);
                 g.FillPolygon(Brushes.Aqua, points.ToArray());
             }
+
+            foreach (var line in lines)
+            {
+                HelperFunctions.DrawLine(HelperFunctions.BresenhamAlgorithm(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y), line.Color, g);
+            }
+
+            foreach (Vertex ver in Vertexs)
+            {
+                g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, VERTEX_SIZE, VERTEX_SIZE);
+            }
+
+
 
             if (drawing == true)
             {
