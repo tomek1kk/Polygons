@@ -115,15 +115,6 @@ namespace Polygons
         }
 
 
-
-
-
-
-        private void Polygons_KeyPress(object sender, KeyPressEventArgs e)
-        {
-
-        }
-
         private void Polygons_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVertex == true && from != null)
@@ -143,7 +134,6 @@ namespace Polygons
                             {
                                 HelperFunctions.LinesEqual(rel.Item2, rel.Item1, rel.Item1.GetLineLength());
                             }
-                            //break;
                         }
                         else if (rel.Item2.P1 == from || rel.Item2.P2 == from)
                         {
@@ -155,7 +145,6 @@ namespace Polygons
                             {
                                 HelperFunctions.LinesEqual(rel.Item1, rel.Item2, rel.Item2.GetLineLength());
                             }
-                            //break;
                         }
 
                     }
@@ -168,11 +157,6 @@ namespace Polygons
                 currentPosition = e.Location;
                 Invalidate();
             }
-        }
-
-        private void Polygons_Click(object sender, EventArgs e)
-        {
-            
         }
 
         private void Polygons_MouseClick(object sender, MouseEventArgs e)
