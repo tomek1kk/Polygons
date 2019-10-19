@@ -64,9 +64,7 @@
             this.Name = "Polygons";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Polygons";
-            this.Click += new System.EventHandler(this.Polygons_Click);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
-            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Polygons_KeyPress);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Polygons_MouseClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Polygons_MouseMove);
