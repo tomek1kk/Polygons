@@ -8,7 +8,15 @@ namespace Polygons
 {
     public class Polygon
     {
-        public List<Vertex> vertices;
+        public List<Vertex> Vertices { get; set; }
+        public List<Line> Lines { get; set; }
 
+        public void Print()
+        {
+            foreach (var v in Vertices)
+            {
+                Console.WriteLine("Verticle: " + v.Position);
+            }
+        }
     }
 }

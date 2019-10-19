@@ -28,6 +28,7 @@ namespace Polygons
 
         List<Vertex> Vertexs = new List<Vertex>();
         List<Line> lines = new List<Line>();
+        List<Polygon> polygons = new List<Polygon>();
         List<(Line, Line)> relations = new List<(Line, Line)>();
 
 
@@ -74,23 +75,51 @@ namespace Polygons
                 {
                     foreach (var ver in Vertexs)
                     {
-                        if (HelperFunctions.InArea(e.Location, ver.Position, CLICK_RADIUS) && ver.Edges < 2)
+                        if (HelperFunctions.InArea(e.Location, ver.Position, CLICK_RADIUS) && ver.Edges < 2) // line went to existing vertex
                         {
                             ver.Edges++;
-                            lines.Add(new Line { P1 = ver, P2 = from, Color = Brushes.Black, Relation = Relation.None });
+                            lines.Add(new Line { P1 = from, P2 = ver, Color = Brushes.Black, Relation = Relation.None });
                             Invalidate();
                             drawing = false;
+                            // CHECK IF NEW POLYGON WAS CREATED
+                            Polygon polygon = GeneratePolygon(ver, from);
+                            if (polygon != null)
+                                polygons.Add(polygon);
+                            
+  
                             return;
                         }
                     }
-                    Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1, Edges = 1 });
-                    lines.Add( new Line { P1 = Vertexs.Find(v => v.Id == Vertexs.Count), P2 = from,
+                    Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1, Edges = 1 }); // create new vertex
+                    lines.Add( new Line { P1 = from, P2 = Vertexs.Find(v => v.Id == Vertexs.Count),
                                             Color = Brushes.Black, Relation = Relation.None });
                     Invalidate();
                 }
                 drawing = false;
                 movingVertex = false;
             }
+        }
+
+        private Polygon GeneratePolygon(Vertex p1, Vertex p2)
+        {
+            List<Vertex> polygonVertices = new List<Vertex>();
+            List<Line> polygonLines = new List<Line>();
+
+            Vertex from = p1;
+
+            polygonVertices.Add(from);
+            while (from != p2)
+            {
+                Line line = lines.Find(l => l.P1 == from);
+                if (line == null)
+                    return null;
+                from = line.P2;
+                polygonVertices.Add(from);
+                polygonLines.Add(line);
+            }
+            polygonLines.Add(lines.Find(l => l.P1 == p2));
+
+            return new Polygon { Vertices = polygonVertices, Lines = polygonLines };
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -106,6 +135,15 @@ namespace Polygons
             {
                 HelperFunctions.DrawLine(HelperFunctions.BresenhamAlgorithm(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y), line.Color, g);
             }
+
+            foreach (var polygon in polygons)
+            {
+                List<Point> points = new List<Point>();
+                foreach (var vertex in polygon.Vertices)
+                    points.Add(vertex.Position);
+                g.FillPolygon(Brushes.Aqua, points.ToArray());
+            }
+
             if (drawing == true)
             {
                 HelperFunctions.DrawLine(HelperFunctions.BresenhamAlgorithm(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y), Brushes.Black, g); // TODO
@@ -163,7 +201,7 @@ namespace Polygons
         {
             if (e.Button == MouseButtons.Right)
             {
-                foreach (var ver in Vertexs)
+                foreach (var ver in Vertexs) // deleting vertex
                 {
                     if (HelperFunctions.InArea(ver.Position, e.Location, CLICK_RADIUS))
                     {
@@ -186,7 +224,7 @@ namespace Polygons
                         return;
                     }
                 }
-                foreach (var line in lines)
+                foreach (var line in lines) // mark line
                 {
                     if (HelperFunctions.InLineArea(HelperFunctions.BresenhamAlgorithm(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y), e.Location, CLICK_RADIUS))
                     {
