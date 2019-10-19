@@ -19,11 +19,11 @@ namespace Polygons
 
         const int CLICK_RADIUS = 10;
         const int VERTEX_SIZE = 5;
-
         private bool drawing = false;
         private bool movingVertex = false;
         private Vertex from;
         private Point currentPosition;
+
         private Random rand = new Random();
         private static int counter = 0;
 
