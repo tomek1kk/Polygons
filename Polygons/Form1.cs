@@ -150,7 +150,7 @@ namespace Polygons
             {
                 HelperFunctions.DrawLine(HelperFunctions.BresenhamAlgorithm(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y), Brushes.Black, g); // TODO
             }
-            g.Dispose();
+            //g.Dispose();
 
         }
 

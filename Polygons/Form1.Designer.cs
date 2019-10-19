@@ -61,6 +61,7 @@
             this.ClientSize = new System.Drawing.Size(1382, 853);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
+            this.DoubleBuffered = true;
             this.Name = "Polygons";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Polygons";
