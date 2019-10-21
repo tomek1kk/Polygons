@@ -22,9 +22,12 @@ namespace Polygons
         private bool drawing = false;
         private bool movingVertex = false;
         private bool movingPolygon = false;
+        private bool movingEdge = false;
         private Polygon polygonToMove;
         private Vertex from;
         private Point currentPosition;
+        private Line lineToMove;
+        private Point startPoint;
 
         private static int counter = 0;
 
@@ -69,7 +72,19 @@ namespace Polygons
 
                     }
                 }
-                if (drawing == false && movingVertex == false && movingPolygon == false) // add new Vertex
+                if (Form.ModifierKeys == Keys.Alt)
+                {
+                    foreach (var line in lines)
+                    {
+                        if (HelperFunctions.InLineArea(HelperFunctions.BresenhamAlgorithm(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y), e.Location, CLICK_RADIUS))
+                        {
+                            movingEdge = true;
+                            startPoint = e.Location;
+                            lineToMove = line;
+                        }
+                    }
+                }
+                if (drawing == false && movingVertex == false && movingPolygon == false && movingEdge == false) // add new Vertex
                 {
                     Console.WriteLine(e.Location);
                     Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1, Edges = 0 });
@@ -113,6 +128,7 @@ namespace Polygons
                 drawing = false;
                 movingPolygon = false;
                 movingVertex = false;
+                movingEdge = false;
             }
         }
 
@@ -147,9 +163,6 @@ namespace Polygons
                 List<Point> points = new List<Point>();
                 foreach (var vertex in polygon.Vertices)
                     points.Add(vertex.Position);
-                Console.WriteLine("Polygon vertices:");
-                foreach (var p in points)
-                    Console.WriteLine(p);
                 g.FillPolygon(Brushes.Aqua, points.ToArray());
             }
 
@@ -222,6 +235,16 @@ namespace Polygons
                     var point = new Point(ver.Position.X + dx, ver.Position.Y + dy);
                     ver.Position = point;
                 }
+                Invalidate();
+            }
+            if (movingEdge == true)
+            {
+                var dx = e.Location.X - startPoint.X;
+                var dy = e.Location.Y - startPoint.Y;
+
+                lineToMove.P1.Position = new Point(lineToMove.P1.Position.X + dx, lineToMove.P1.Position.Y + dy);
+                lineToMove.P2.Position = new Point(lineToMove.P2.Position.X + dx, lineToMove.P2.Position.Y + dy);
+                startPoint = e.Location;
                 Invalidate();
             }
         }
