@@ -15,6 +15,15 @@ namespace Polygons
         public Polygons()
         {
             InitializeComponent();
+            Vertexs.Add(new Vertex { Edges = 2, Id = 1, Position = new Point(200, 200) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 2, Position = new Point(600, 100) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 2, Position = new Point(800, 300) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 3, Position = new Point(400, 500) });
+            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[0], P2 = Vertexs[1] });
+            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[1], P2 = Vertexs[2] });
+            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[2], P2 = Vertexs[3] });
+            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[3], P2 = Vertexs[0] });
+            polygons.Add(new Polygon { Vertices = Vertexs, Lines = lines });
         }
 
         const int CLICK_RADIUS = 10;

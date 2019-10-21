@@ -26,10 +26,10 @@ namespace Polygons
                     Color = Brushes.Black;
                     break;
                 case Relation.Equal:
-                    Color = Brushes.Purple;
+                    Color = Brushes.DarkGreen;
                     break;
                 case Relation.Parallel:
-                    Color = Brushes.Green;
+                    Color = Brushes.Orange;
                     break;
             }
             if (Marked == true)
