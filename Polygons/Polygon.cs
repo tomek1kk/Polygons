@@ -17,6 +17,10 @@ namespace Polygons
             {
                 Console.WriteLine("Verticle: " + v.Position);
             }
+            foreach (var l in Lines)
+            {
+                Console.WriteLine("Line: " + l.P1.Position + " , " + l.P2.Position);
+            }
         }
     }
 }

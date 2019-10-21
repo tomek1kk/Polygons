@@ -97,7 +97,9 @@ namespace Polygons
                             // CHECK IF NEW POLYGON WAS CREATED
                             Polygon polygon = GeneratePolygon(ver, from);
                             if (polygon != null)
+                            {
                                 polygons.Add(polygon);
+                            }
                             
   
                             return;
@@ -145,6 +147,9 @@ namespace Polygons
                 List<Point> points = new List<Point>();
                 foreach (var vertex in polygon.Vertices)
                     points.Add(vertex.Position);
+                Console.WriteLine("Polygon vertices:");
+                foreach (var p in points)
+                    Console.WriteLine(p);
                 g.FillPolygon(Brushes.Aqua, points.ToArray());
             }
 
@@ -157,8 +162,6 @@ namespace Polygons
             {
                 g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, VERTEX_SIZE, VERTEX_SIZE);
             }
-
-
 
             if (drawing == true)
             {
@@ -260,10 +263,15 @@ namespace Polygons
                             if (markedLines < 2)
                             {
                                 line.Marked = true;
+                                if (markedLines == 0)
+                                {
+                                    button3.Enabled = true;
+                                }
                                 if (markedLines == 1)
                                 {
                                     button1.Enabled = true;
                                     button2.Enabled = true;
+                                    button3.Enabled = false;
                                 }
                             }
                                 
@@ -330,6 +338,37 @@ namespace Polygons
 
             marked[0].RecolorLine();
             marked[1].RecolorLine();
+
+            Invalidate();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var marked = lines.FindAll(l => l.Marked == true);
+            if (marked.Count != 1)
+                return;
+            var line = marked[0];
+            Point center = new Point((line.P2.Position.X - line.P1.Position.X) / 2 + line.P1.Position.X,
+                                     (line.P2.Position.Y - line.P1.Position.Y) / 2 + line.P1.Position.Y);
+            Vertex ver = new Vertex { Position = center, Edges = 2, Id = Vertexs.Count + 1 };
+            Vertexs.Add(ver);
+            Line l1, l2;
+            l1 = new Line { Color = Brushes.Black, Relation = Relation.None, Marked = false, P1 = line.P1, P2 = ver };
+            l2 = new Line { Color = Brushes.Black, Relation = Relation.None, Marked = false, P1 = ver, P2 = line.P2 };
+            lines.Add(l1);
+            lines.Add(l2);
+            lines.Remove(line);
+
+            foreach (var polygon in polygons)
+            {
+                if (polygon.Lines.Contains(line))
+                {
+                    polygon.Lines.Remove(line);
+                    polygon.Lines.Add(l1);
+                    polygon.Lines.Add(l2);
+                    polygon.Vertices.Insert(polygon.Vertices.FindIndex(v => v == line.P1) + 1, ver);
+                }
+            }
 
             Invalidate();
         }
