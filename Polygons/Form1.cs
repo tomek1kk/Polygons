@@ -21,6 +21,8 @@ namespace Polygons
         const int VERTEX_SIZE = 5;
         private bool drawing = false;
         private bool movingVertex = false;
+        private bool movingPolygon = false;
+        private Polygon polygonToMove;
         private Vertex from;
         private Point currentPosition;
 
@@ -32,8 +34,6 @@ namespace Polygons
         List<(Line, Line)> relations = new List<(Line, Line)>();
 
 
-
-
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -42,7 +42,19 @@ namespace Polygons
                 {
                     if (HelperFunctions.InArea(e.Location, ver.Position, 20)) // existing Vertex clicked
                     {
-                        if (ver.Edges >= 2 || Form.ModifierKeys != Keys.Control) // moving vertex
+                        if (Form.ModifierKeys == Keys.Shift) // space is clicked - moving polygon
+                        {
+                            foreach (var polygon in polygons) // check if vertex is part of any polygon
+                            {
+                                if (polygon.Vertices.Contains(ver))
+                                {
+                                    movingPolygon = true;
+                                    polygonToMove = polygon;
+                                    from = ver;
+                                }
+                            }
+                        }
+                        else if (ver.Edges >= 2 || Form.ModifierKeys != Keys.Control) // moving vertex
                         {
                             movingVertex = true;
                             from = ver;
@@ -54,9 +66,10 @@ namespace Polygons
                             from = ver;
                         }
 
+
                     }
                 }
-                if (drawing == false && movingVertex == false) // add new Vertex
+                if (drawing == false && movingVertex == false && movingPolygon == false) // add new Vertex
                 {
                     Console.WriteLine(e.Location);
                     Vertexs.Add(new Vertex { Position = e.Location, Id = Vertexs.Count + 1, Edges = 0 });
@@ -71,7 +84,7 @@ namespace Polygons
             if (e.Button == MouseButtons.Left)
             {
 
-                if (drawing == true && from != null)
+                if (drawing == true && from != null && movingPolygon == false)
                 {
                     foreach (var ver in Vertexs)
                     {
@@ -96,6 +109,7 @@ namespace Polygons
                     Invalidate();
                 }
                 drawing = false;
+                movingPolygon = false;
                 movingVertex = false;
             }
         }
@@ -150,7 +164,6 @@ namespace Polygons
             {
                 HelperFunctions.DrawLine(HelperFunctions.BresenhamAlgorithm(from.Position.X, from.Position.Y, currentPosition.X, currentPosition.Y), Brushes.Black, g); // TODO
             }
-            //g.Dispose();
 
         }
 
@@ -197,10 +210,21 @@ namespace Polygons
                 currentPosition = e.Location;
                 Invalidate();
             }
+            if (movingPolygon == true)
+            {
+                var dx = e.Location.X - from.Position.X;
+                var dy = e.Location.Y - from.Position.Y;
+                foreach (var ver in polygonToMove.Vertices)
+                {
+                    var point = new Point(ver.Position.X + dx, ver.Position.Y + dy);
+                    ver.Position = point;
+                }
+                Invalidate();
+            }
         }
 
         private void Polygons_MouseClick(object sender, MouseEventArgs e)
-        {
+        {    
             if (e.Button == MouseButtons.Right)
             {
                 foreach (var ver in Vertexs) // deleting vertex
