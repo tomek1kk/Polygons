@@ -249,6 +249,14 @@ namespace Polygons
                                 }
                                 return false;
                             });
+                        foreach (var pol in polygons)
+                        {
+                            if (pol.Vertices.Contains(ver))
+                            {
+                                polygons.Remove(pol);
+                                break;
+                            }
+                        }
                         Invalidate();
                         return;
                     }
