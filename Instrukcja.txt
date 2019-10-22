@@ -1,0 +1,17 @@
+Dodanie wierzchołka - lewy przycisk myszy
+Dodanie krawędzi od wierzchołka - przytrzymaj CRTL i przeciągnij lewym przyciskiem myszy
+Przesuwanie krawędzi - przytrzymaj ALT i przeciągnij lewym przyciskiem myszy
+Przesuwanie wielokąta - przytrzymaj SHIFT i przeciągnij lewym przyciskiem myszy (trzeba nakierować na dowolny wierzchołek wielokąta)
+Prawy przycisk myszy na wierzchołek - usunięcie wierzchołka
+Prawy przycisk myszy na krawędź - oznaczenie krawędzi
+Przycisk Equals - narzucenie relacji równości na oznaczone krawędzie
+Przycisk Parallel - narzucenie relacji równoległości na oznaczone krawędzie
+Przycisk Add vertex - dodaje wierzchołek do środka oznaczonej krawędzi
+Prawy przycisk myszy na oznaczoną krawędź lub krawędź z relacją - usunięcie oznaczenia / relacji
+
+
+Implementacja relacji
+
+Równość krawędzi - obliczamy długość obu krawędzi, następnie bierzemy tą krótszą. Przesuwamy jeden z wierzchołków dłuższej krawędzi tak aby miała długość taką jak krótsza krawędź.
+
+Równoległość krawędzi - bierzemy jedną krawędź, następnie obliczamy jej współczynnik nachylenia (a). Następnie przesuwamy jeden wierzchołek drugiej krawędzi tak aby współczynnik nachylenia był identyczny.
