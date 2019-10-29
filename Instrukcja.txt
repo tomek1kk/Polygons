@@ -8,6 +8,7 @@ Przycisk Equals - narzucenie relacji równości na oznaczone krawędzie
 Przycisk Parallel - narzucenie relacji równoległości na oznaczone krawędzie
 Przycisk Add vertex - dodaje wierzchołek do środka oznaczonej krawędzi
 Prawy przycisk myszy na oznaczoną krawędź lub krawędź z relacją - usunięcie oznaczenia / relacji
+Zablokowanie wierzchołka - przytrzymaj CRTL i kliknij wierzchołek prawym przyciskiem myszy
 
 
 Implementacja relacji

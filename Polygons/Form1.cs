@@ -15,14 +15,40 @@ namespace Polygons
         public Polygons()
         {
             InitializeComponent();
-            Vertexs.Add(new Vertex { Edges = 2, Id = 1, Position = new Point(200, 200) });
-            Vertexs.Add(new Vertex { Edges = 2, Id = 2, Position = new Point(600, 100) });
-            Vertexs.Add(new Vertex { Edges = 2, Id = 3, Position = new Point(800, 300) });
-            Vertexs.Add(new Vertex { Edges = 2, Id = 4, Position = new Point(400, 500) });
-            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[0], P2 = Vertexs[1] });
-            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[1], P2 = Vertexs[2] });
-            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[2], P2 = Vertexs[3] });
-            lines.Add(new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[3], P2 = Vertexs[0] });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 1, Position = new Point(389, 420) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 2, Position = new Point(448, 79) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 3, Position = new Point(675, 97) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 4, Position = new Point(568, 352) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 5, Position = new Point(886, 407) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 6, Position = new Point(498, 591) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 7, Position = new Point(274, 631) });
+            Vertexs.Add(new Vertex { Edges = 2, Id = 8, Position = new Point(175, 382) });
+
+
+            Line l1 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[0], P2 = Vertexs[1] };
+            Line l2 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.Equal, P1 = Vertexs[1], P2 = Vertexs[2] };
+            Line l3 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[2], P2 = Vertexs[3] };
+            Line l4 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.Parallel, P1 = Vertexs[3], P2 = Vertexs[4] };
+            Line l5 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[4], P2 = Vertexs[5] };
+            Line l6 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.Equal, P1 = Vertexs[5], P2 = Vertexs[6] };
+            Line l7 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.None, P1 = Vertexs[6], P2 = Vertexs[7] };
+            Line l8 = new Line { Color = Brushes.Black, Marked = false, Relation = Relation.Parallel, P1 = Vertexs[7], P2 = Vertexs[0] };
+
+            lines.Add(l1);
+            lines.Add(l2);
+            lines.Add(l3);
+            lines.Add(l4);
+            lines.Add(l5);
+            lines.Add(l6);
+            lines.Add(l7);
+            lines.Add(l8);
+            
+            foreach (var l in lines)
+                l.RecolorLine();
+
+            relations.Add((l2, l6));
+            relations.Add((l4, l8));
+
             polygons.Add(new Polygon { Vertices = new List<Vertex>(Vertexs), Lines = new List<Line>(lines) });
         }
 
@@ -54,10 +80,15 @@ namespace Polygons
                 {
                     if (HelperFunctions.InArea(e.Location, ver.Position, 20)) // existing Vertex clicked
                     {
-                        if (Form.ModifierKeys == Keys.Shift) // space is clicked - moving polygon
+                        if (Form.ModifierKeys == Keys.Shift) // shift is clicked - moving polygon
                         {
                             foreach (var polygon in polygons) // check if vertex is part of any polygon
                             {
+                                foreach (var v in polygon.Vertices)
+                                {
+                                    if (v.block == true)
+                                        return;
+                                }
                                 if (polygon.Vertices.Contains(ver))
                                 {
                                     movingPolygon = true;
@@ -87,9 +118,12 @@ namespace Polygons
                     {
                         if (HelperFunctions.InLineArea(HelperFunctions.BresenhamAlgorithm(line.P1.Position.X, line.P1.Position.Y, line.P2.Position.X, line.P2.Position.Y), e.Location, CLICK_RADIUS))
                         {
-                            movingEdge = true;
-                            startPoint = e.Location;
-                            lineToMove = line;
+                            if (line.P1.block == false && line.P2.block == false)
+                            {
+                                movingEdge = true;
+                                startPoint = e.Location;
+                                lineToMove = line;
+                            }
                         }
                     }
                 }
@@ -167,13 +201,13 @@ namespace Polygons
         {
             Graphics g = e.Graphics;
 
-            foreach (var polygon in polygons)
-            {
-                List<Point> points = new List<Point>();
-                foreach (var vertex in polygon.Vertices)
-                    points.Add(vertex.Position);
-                g.FillPolygon(Brushes.Aqua, points.ToArray());
-            }
+            //foreach (var polygon in polygons)
+            //{
+            //    List<Point> points = new List<Point>();
+            //    foreach (var vertex in polygon.Vertices)
+            //        points.Add(vertex.Position);
+            //    g.FillPolygon(Brushes.Aqua, points.ToArray());
+            //}
 
             foreach (var line in lines)
             {
@@ -182,7 +216,11 @@ namespace Polygons
 
             foreach (Vertex ver in Vertexs)
             {
-                g.FillRectangle(Brushes.Red, ver.Position.X, ver.Position.Y, VERTEX_SIZE, VERTEX_SIZE);
+                if (ver.block == true)
+                {
+                    Console.WriteLine("zablokowany wierzcho");
+                }
+                g.FillRectangle(ver.block == false ? Brushes.Red : Brushes.Black, ver.Position.X, ver.Position.Y, VERTEX_SIZE, VERTEX_SIZE);
             }
 
             if (drawing == true)
@@ -197,6 +235,21 @@ namespace Polygons
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left && movingVertex == true && from != null)
             {
+                if (from.block == true)
+                    return;
+                foreach (var r in relations)
+                {
+                    if (r.Item1.P1 == from || r.Item1.P2 == from)
+                    {
+                        if (r.Item2.P1.block == true || r.Item2.P2.block == true)
+                            return;
+                    }
+                    if (r.Item2.P1 == from || r.Item2.P2 == from)
+                    {
+                        if (r.Item1.P1.block == true || r.Item1.P2.block == true)
+                            return;
+                    }
+                }
                 from.Position = e.Location;
                 if (counter++ % 10 == 0)
                 {
@@ -266,6 +319,28 @@ namespace Polygons
                 {
                     if (HelperFunctions.InArea(ver.Position, e.Location, CLICK_RADIUS))
                     {
+                        if (Form.ModifierKeys == Keys.Control)
+                        {
+                            Console.WriteLine("usuwam");
+                            ver.Block();
+
+                            //var p = relations.Count;
+                            //for (int i = 0; i < p; i++)
+                            //{
+                            //    if (relations[i].Item1.P1 == ver || relations[i].Item1.P2 == ver || relations[i].Item2.P1 == ver || relations[i].Item2.P2 == ver)
+                            //    {
+                            //        relations[i].Item1.Relation = Relation.None;
+                            //        relations[i].Item2.Relation = Relation.None;
+                            //    }
+                            //    relations.Remove(relations[i]);
+                            //    i--;
+                                    
+                            //}
+
+
+                            Invalidate();
+                            return;
+                        }
                         Vertexs.Remove(ver);
                         lines.RemoveAll(line =>
                             {
@@ -339,7 +414,10 @@ namespace Polygons
             var marked = lines.FindAll(line => line.Marked == true);
             if (marked.Count != 2)
                 return;
+            if (marked[0].P1.block == true || marked[0].P2.block == true || marked[1].P1.block == true || marked[1].P2.block == true)
+                return;
             relations.Add((marked[0], marked[1]));
+
             var length = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1].GetLineLength() : marked[0].GetLineLength(); // take shorter line
             Line lineToChange = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[0] : marked[1];
             Line lineToStay = marked[0].GetLineLength() > marked[1].GetLineLength() ? marked[1] : marked[0];
@@ -365,6 +443,8 @@ namespace Polygons
             if (marked.Count != 2)
                 return;
             if (marked[0].P1 == marked[1].P1 || marked[0].P1 == marked[1].P2 || marked[0].P2 == marked[1].P1 || marked[0].P2 == marked[1].P2)
+                return;
+            if (marked[0].P1.block == true || marked[0].P2.block == true || marked[1].P1.block == true || marked[1].P2.block == true)
                 return;
             relations.Add((marked[0], marked[1]));
 

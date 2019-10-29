@@ -12,5 +12,11 @@ namespace Polygons
         public int Id { get; set; }
         public Point Position { get; set; }
         public int Edges { get; set; }
+        public bool block = false;
+
+        public void Block()
+        {
+            block = true;
+        }
     }
 }
